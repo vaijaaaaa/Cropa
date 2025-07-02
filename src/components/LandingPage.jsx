@@ -14,7 +14,6 @@ export default function LandingPage() {
           <nav className="space-x-6 text-sm text-gray-400">
             <a href="#features" className="hover:text-white transition">Features</a>
             <a href="#faq" className="hover:text-white transition">FAQ</a>
-            <a href="#about" className="hover:text-white transition">About</a>
             <button
               onClick={() => navigate("/crop")}
               className="ml-4 bg-white text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-200 transition"
