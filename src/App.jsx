@@ -1,15 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// App.jsx
+import { Routes, Route } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
-import CropperTool from "./components/CropperTool"; // create this next
+import CropperTool from "./components/CropperTool";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/crop" element={<CropperTool />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/crop" element={<CropperTool />} />
+    </Routes>
   );
 }
 

@@ -1,4 +1,10 @@
+@import 'cropperjs/dist/cropper.css'; /* Cropper CSS */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap'); /* Google Fonts */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'cropperjs/dist/cropper.css';
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
