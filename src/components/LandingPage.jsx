@@ -9,7 +9,7 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 w-full bg-black z-50 border-b border-gray-800">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-4">
           <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-transparent bg-clip-text">
-            PassportPic
+            Cropa
           </div>
           <nav className="space-x-6 text-sm text-gray-400">
             <a href="#features" className="hover:text-white transition">Features</a>
