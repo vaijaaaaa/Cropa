@@ -1,156 +1,120 @@
 import { useRef, useState } from "react";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
-import axios from "axios";
 
 export default function CropperTool() {
   const cropperRef = useRef(null);
   const [image, setImage] = useState(null);
-  const [cropped, setCropped] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [croppedDataUrl, setCroppedDataUrl] = useState(null);
 
-  const handleImageChange = (e) => {
+  const onSelectImage = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
-      setCropped(null); // Reset previous cropped image
+      const reader = new FileReader();
+      reader.onload = () => setImage(reader.result);
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleCrop = () => {
+  const cropImage = () => {
     const cropper = cropperRef.current?.cropper;
-    if (cropper) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 413 + 20; // add white border (10px each side)
-      canvas.height = 531 + 20;
-      const ctx = canvas.getContext("2d");
-
-      // Fill with white background
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const croppedCanvas = cropper.getCroppedCanvas({
+    if (cropper && cropper.getCroppedCanvas()) {
+      const canvas = cropper.getCroppedCanvas({
         width: 413,
         height: 531,
-        imageSmoothingQuality: "high",
+        fillColor: "#fff",
       });
 
-      ctx.drawImage(croppedCanvas, 10, 10); // draw with 10px padding
-      setCropped(canvas.toDataURL("image/png"));
+      const borderedCanvas = document.createElement("canvas");
+      borderedCanvas.width = 450;
+      borderedCanvas.height = 569;
+      const ctx = borderedCanvas.getContext("2d");
+
+      if (ctx) {
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillRect(0, 0, 450, 569);
+        ctx.drawImage(canvas, 18.5, 19);
+        const dataUrl = borderedCanvas.toDataURL("image/jpeg");
+        setCroppedDataUrl(dataUrl);
+      }
     }
   };
 
-  const handleRemoveBg = async () => {
-    if (!image) return;
-    try {
-      setLoading(true);
-      const blob = await fetch(image).then((res) => res.blob());
-      const formData = new FormData();
-      formData.append("image_file", blob);
-      formData.append("size", "auto");
-
-      const response = await axios.post("https://api.remove.bg/v1.0/removebg", formData, {
-        headers: {
-          "X-Api-Key": "YOUR_API_KEY_HERE",
-        },
-        responseType: "blob",
-      });
-
-      const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result);
-      reader.readAsDataURL(response.data);
-    } catch (err) {
-      alert("Background removal failed. Check your API key.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDownload = () => {
-    if (!cropped) return;
+  const downloadImage = () => {
+    if (!croppedDataUrl) return;
     const a = document.createElement("a");
-    a.href = cropped;
-    a.download = "passport_photo.png";
+    a.href = croppedDataUrl;
+    a.download = "passport-photo.jpg";
     a.click();
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-gray-900 font-inter px-6 py-10">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-center mb-10">
-          Passport Photo Editor
-        </h1>
+    <div className="min-h-screen bg-black text-white font-inter px-4 py-10">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent mb-10">
+        Passport Photo Cropper
+      </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Upload + Cropper */}
-          <div className="bg-white p-6 rounded-xl shadow border border-gray-200">
-            <label className="block text-sm font-semibold mb-2">
-              Upload Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
-            />
-
-            {image && (
-              <>
-                <Cropper
-                  src={image}
-                  ref={cropperRef}
-                  style={{ height: 400, width: "100%" }}
-                  aspectRatio={413 / 531}
-                  guides={true}
-                  viewMode={1}
-                  autoCropArea={1}
-                  background={false}
-                  responsive={true}
-                />
-
-                <div className="flex gap-4 mt-4">
-                  <button
-                    onClick={handleCrop}
-                    className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
-                  >
-                    Crop
-                  </button>
-                  <button
-                    onClick={handleRemoveBg}
-                    disabled={loading}
-                    className="bg-red-500 text-white px-5 py-2 rounded-md hover:bg-red-600 transition"
-                  >
-                    {loading ? "Removing..." : "Remove BG"}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Preview + Download */}
-          <div className="bg-white p-6 rounded-xl shadow border border-gray-200 text-center">
-            <h2 className="text-lg font-semibold mb-4">Preview</h2>
-            {cropped ? (
-              <>
-                <img
-                  src={cropped}
-                  alt="Cropped"
-                  className="mx-auto border border-gray-300 rounded-md"
-                />
-                <button
-                  onClick={handleDownload}
-                  className="mt-6 bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition"
-                >
-                  Download Photo
-                </button>
-              </>
-            ) : (
-              <p className="text-gray-500">No cropped photo yet</p>
-            )}
-          </div>
-        </div>
+      {/* Upload */}
+      <div className="mb-6 flex justify-center">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={onSelectImage}
+          className="text-white file:bg-gray-800 file:border file:border-gray-700 file:rounded-md file:px-4 file:py-2 file:text-white file:cursor-pointer"
+        />
       </div>
+
+      {image && (
+        <div className="flex flex-col lg:flex-row gap-10 items-start justify-center">
+          {/* Cropper Section */}
+          <div className="flex-1 max-w-md w-full border border-gray-700 rounded-lg overflow-hidden bg-[#111] p-4">
+            <Cropper
+              src={image}
+              style={{ height: 400, width: "100%" }}
+              aspectRatio={413 / 531}
+              guides={false}
+              background={false}
+              responsive={true}
+              autoCropArea={1}
+              checkOrientation={false}
+              ref={cropperRef}
+              viewMode={1}
+            />
+          </div>
+
+          {/* Preview Section */}
+          {croppedDataUrl && (
+            <div className="flex-1 max-w-md w-full bg-[#111] border border-gray-700 rounded-lg p-4 shadow-md">
+              <h2 className="text-lg font-semibold mb-3 text-center">Preview</h2>
+              <div className="aspect-[413/531] border-4 border-white rounded overflow-hidden">
+                <img
+                  src={croppedDataUrl}
+                  alt="Cropped"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <button
+                onClick={downloadImage}
+                className="mt-4 w-full bg-gray-800 border border-gray-600 hover:border-white text-white px-4 py-2 rounded-md font-semibold"
+              >
+                Download
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Crop Button */}
+      {image && (
+        <div className="mt-8 flex justify-center gap-4">
+          <button
+            onClick={cropImage}
+            className="bg-orange-500 hover:bg-orange-600 transition text-white font-semibold px-6 py-3 rounded-md"
+          >
+            Crop & Preview →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
