@@ -47,7 +47,7 @@ export default function LandingPage() {
             Get Started →
           </button>
           <a
-            href="https://github.com"
+            href="https://github.com/vaijaaaaa/Cropa"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gray-800 border border-gray-600 hover:border-white text-white px-6 py-3 rounded-md font-semibold"
